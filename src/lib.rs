@@ -19,6 +19,8 @@ pub enum Error {
     KeyLengthMismatch(usize),
     #[error("iterations must be non zero!")]
     ZeroIterations,
+    #[error("url must be like https://paste.fitgirl-repacks.site/?{{pasteid}}#{{key_base58}}")]
+    IllFormedURL,
 
     #[error("request error: {0}")]
     Ureq(#[from] ureq::Error),
@@ -38,6 +40,17 @@ pub enum Error {
 }
 
 impl Paste<'_> {
+    pub fn parse_url<'a>(url: &'a str) -> Result<Paste<'a>> {
+        let (pasteid, key_base58) = url
+            .split_once('?')
+            .ok_or(Error::IllFormedURL)?
+            .1
+            .split_once("#")
+            .ok_or(Error::IllFormedURL)?;
+
+        Self::try_from_key_and_pasteid(key_base58, pasteid)
+    }
+
     pub fn try_from_key_and_pasteid<'a>(
         key_base58: &'a str,
         pasteid: &'a str,
