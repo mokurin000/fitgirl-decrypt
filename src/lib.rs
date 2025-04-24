@@ -130,3 +130,6 @@ mod types;
 use types::{Attachment, Cipher, CipherInfo};
 
 mod crypto;
+
+pub use base64;
+
