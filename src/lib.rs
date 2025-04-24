@@ -1,9 +1,18 @@
 use std::num::NonZero;
 
 use base64::{prelude::BASE64_STANDARD, Engine};
-use crypto::decrypt_aes_256_gcm;
-use thiserror::Error;
 
+mod types;
+pub use types::Attachment;
+use types::{Cipher, CipherInfo};
+
+mod crypto;
+use crypto::decrypt_aes_256_gcm;
+
+mod error;
+pub use error::Error;
+
+/// [`Paste`] stores pasteid and key.
 #[derive(Debug, Clone)]
 pub struct Paste<'a> {
     key: Vec<u8>,
@@ -13,33 +22,18 @@ pub struct Paste<'a> {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("key length not match! expected 32, got {0}")]
-    KeyLengthMismatch(usize),
-    #[error("iterations must be non zero!")]
-    ZeroIterations,
-    #[error("url must be like https://paste.fitgirl-repacks.site/?{{pasteid}}#{{key_base58}}")]
-    IllFormedURL,
-
-    #[error("request error: {0}")]
-    Ureq(#[from] ureq::Error),
-
-    #[error("base58 decode error: {0}")]
-    Base58(#[from] bs58::decode::Error),
-    #[error("base64 decode error: {0}")]
-    Base64(#[from] base64::DecodeError),
-    #[error("zlib decompress error")]
-    DecompressError,
-
-    #[error("aes-256-gcm decryption error")]
-    AesGcm,
-
-    #[error("serialize error: {0}")]
-    JSONSerialize(#[from] serde_json::Error),
-}
-
 impl Paste<'_> {
+    /// Parse paste info from an URL.
+    ///
+    /// ```rust
+    /// use fitgirl_decrypt::{Paste, Error};
+    ///
+    /// let url1 = "https://paste.fitgirl-repacks.site/?225484ced69df1d1#SKYwGaZwZmRbN2fR4R9QQJzLTmzpctbDE7kZNpwesRW";
+    /// let url2 = "https://paste.fitgirl-repacks.site/?225484ced69df1d1#kWYCcn3qmpehWMMBmZ1NJciKNA6eXfK6LPzwgGXFdJ";
+    ///
+    /// assert!(Paste::parse_url(url1).is_ok());
+    /// assert!(matches!(Paste::parse_url(url2), Err(Error::KeyLengthMismatch(31))));
+    /// ```
     pub fn parse_url<'a>(url: &'a str) -> Result<Paste<'a>> {
         let (pasteid, key_base58) = url
             .split_once('?')
@@ -51,6 +45,28 @@ impl Paste<'_> {
         Self::try_from_key_and_pasteid(key_base58, pasteid)
     }
 
+    /// Parse paste info from key_base58 (the url segment after '#') and pasteid.
+    ///
+    /// ```rust
+    /// use fitgirl_decrypt::{Paste, Error};
+    ///
+    /// assert!(
+    ///     Paste::try_from_key_and_pasteid(
+    ///         "SKYwGaZwZmRbN2fR4R9QQJzLTmzpctbDE7kZNpwesRW",
+    ///         "",
+    ///     )
+    ///     .is_ok()
+    /// );
+    /// assert!(
+    ///     matches!(
+    ///         Paste::try_from_key_and_pasteid(
+    ///             "kWYCcn3qmpehWMMBmZ1NJciKNA6eXfK6LPzwgGXFdJ",
+    ///             "225484ced69df1d1",
+    ///         ),
+    ///         Err(Error::KeyLengthMismatch(31)),
+    ///     )
+    /// );
+    /// ```
     pub fn try_from_key_and_pasteid<'a>(
         key_base58: &'a str,
         pasteid: &'a str,
@@ -68,6 +84,9 @@ impl Paste<'_> {
         })
     }
 
+    /// Download the paste, and decrypt it's attachment.
+    ///
+    /// See [examples/request.rs](https://github.com/mokurin000/fitgirl-decrypt/blob/master/examples/request.rs) for more details.
     pub fn decrypt(&self) -> Result<Attachment> {
         let CipherInfo { adata, ct } = self.request()?;
 
@@ -126,10 +145,4 @@ impl Paste<'_> {
     }
 }
 
-mod types;
-use types::{Attachment, Cipher, CipherInfo};
-
-mod crypto;
-
 pub use base64;
-

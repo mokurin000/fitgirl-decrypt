@@ -1,13 +1,13 @@
 use serde::{ser::SerializeTuple as _, Deserialize, Serialize, Serializer};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CipherInfo {
+pub(crate) struct CipherInfo {
     pub adata: (Cipher, String, u8, u8),
     pub ct: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct Cipher {
+pub(crate) struct Cipher {
     pub cipher_iv: String,
     pub kdf_salt: String,
     pub kdf_iterations: u32,
@@ -20,7 +20,7 @@ pub struct Cipher {
 
 #[derive(Default, Deserialize, Debug, Serialize, Clone)]
 #[serde(rename_all = "lowercase")]
-pub enum CompressionType {
+pub(crate) enum CompressionType {
     None,
     #[default]
     Zlib,
@@ -44,8 +44,24 @@ impl Serialize for Cipher {
     }
 }
 
+/// `Attachment` is from the decrypted paste JSON.
+///
+/// ```rust
+/// use fitgirl_decrypt::base64::{prelude::BASE64_STANDARD, Engine};
+/// use fitgirl_decrypt::{Paste, Attachment};
+///
+/// let paste = Paste::parse_url("https://paste.fitgirl-repacks.site/?225484ced69df1d1#SKYwGaZwZmRbN2fR4R9QQJzLTmzpctbDE7kZNpwesRW")
+///     .expect("parse error");
+/// let Attachment { attachment, .. } = paste.decrypt()
+///     .expect("failed to decrypt");
+///
+/// let base64 = attachment.split_once("data:application/x-bittorrent;base64,").unwrap().1;
+/// let torrent = BASE64_STANDARD.decode(base64).expect("decode failed");
+/// ```
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Attachment {
+    /// data URI startswith `data:application/x-bittorrent;base64,`
     pub attachment: String,
+    /// suggested filename of the attachment
     pub attachment_name: String,
 }
