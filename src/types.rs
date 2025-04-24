@@ -55,7 +55,7 @@ impl Serialize for Cipher {
 /// let Attachment { attachment, .. } = paste.decrypt()
 ///     .expect("failed to decrypt");
 ///
-/// let base64 = attachment.split_once("data:application/x-bittorrent;base64,").unwrap().1;
+/// let base64 = attachment.strip_prefix("data:application/x-bittorrent;base64,").unwrap();
 /// let torrent = BASE64_STANDARD.decode(base64).expect("decode failed");
 ///
 /// let paste = Paste::parse_url("https://pastefg.hermietkreeft.site/?504bf00f08cb6c26#Cg1BP1oPRYGGffdNyrNUca9AUpstsHRz7McPnEaUUTLo")
@@ -63,7 +63,7 @@ impl Serialize for Cipher {
 /// let Attachment { attachment, .. } = paste.decrypt()
 ///     .expect("failed to decrypt");
 ///
-/// let base64 = attachment.split_once("data:application/x-bittorrent;base64,").unwrap().1;
+/// let base64 = attachment.strip_prefix("data:application/x-bittorrent;base64,").unwrap();
 /// let torrent = BASE64_STANDARD.decode(base64).expect("decode failed");
 /// ```
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
