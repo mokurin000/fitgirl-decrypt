@@ -18,6 +18,7 @@ pub struct Paste<'a> {
     key: Vec<u8>,
     key_base58: &'a str,
     pasteid: &'a str,
+    base_url: &'a str,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -35,14 +36,11 @@ impl Paste<'_> {
     /// assert!(matches!(Paste::parse_url(url2), Err(Error::KeyLengthMismatch(31))));
     /// ```
     pub fn parse_url<'a>(url: &'a str) -> Result<Paste<'a>> {
-        let (pasteid, key_base58) = url
-            .split_once('?')
-            .ok_or(Error::IllFormedURL)?
-            .1
-            .split_once("#")
-            .ok_or(Error::IllFormedURL)?;
+        let (base_url, pasteinfo) = url.split_once('?').ok_or(Error::IllFormedURL)?;
+        let (pasteid, key_base58) = pasteinfo.split_once("#").ok_or(Error::IllFormedURL)?;
 
-        Self::try_from_key_and_pasteid(key_base58, pasteid)
+        let paste = Self::try_from_key_and_pasteid(key_base58, pasteid)?;
+        Ok(Paste { base_url, ..paste })
     }
 
     /// Parse paste info from key_base58 (the url segment after '#') and pasteid.
@@ -77,10 +75,13 @@ impl Paste<'_> {
             return Err(Error::KeyLengthMismatch(key.len()));
         }
 
+        let base_url = "https://paste.fitgirl-repacks.site/";
+
         Ok(Paste {
             key,
             key_base58,
             pasteid,
+            base_url,
         })
     }
 
@@ -127,8 +128,9 @@ impl Paste<'_> {
         let pasteid = self.pasteid;
         let key_base58 = self.key_base58;
 
-        let init_cookies = format!("https://paste.fitgirl-repacks.site/?{pasteid}#{key_base58}");
-        let cipher_info = format!("https://paste.fitgirl-repacks.site/?pasteid={pasteid}");
+        let base = self.base_url;
+        let init_cookies = format!("{base}?{pasteid}#{key_base58}");
+        let cipher_info = format!("{base}?pasteid={pasteid}");
 
         let agent = Agent::new_with_defaults();
 
