@@ -3,8 +3,7 @@ use std::num::NonZero;
 use base64::{prelude::BASE64_STANDARD, Engine};
 
 mod types;
-pub use types::Attachment;
-use types::{Cipher, CipherInfo};
+pub use types::{Attachment, Cipher, CipherInfo, CompressionType};
 
 mod crypto;
 use crypto::decrypt_aes_256_gcm;
@@ -85,11 +84,9 @@ impl Paste<'_> {
         })
     }
 
-    /// Download the paste, and decrypt it's attachment.
-    ///
-    /// See [examples/request.rs](https://github.com/mokurin000/fitgirl-decrypt/blob/master/examples/request.rs) for more details.
-    pub fn decrypt(&self) -> Result<Attachment> {
-        let CipherInfo { adata, ct } = self.request()?;
+    /// Decrypt paste from [`CipherInfo`]. see [`request`] and [`request_async`].
+    pub fn decrypt(&self, cipher: impl AsRef<CipherInfo>) -> Result<Attachment> {
+        let CipherInfo { adata, ct } = cipher.as_ref();
 
         let Cipher {
             cipher_iv,
@@ -122,7 +119,9 @@ impl Paste<'_> {
         Ok(serde_json::from_slice(&data)?)
     }
 
-    fn request(&self) -> Result<CipherInfo> {
+    /// Get `CipherInfo` to decrypt synchronously, with [`ureq`].
+    #[cfg(feature = "ureq")]
+    pub fn request(&self) -> Result<CipherInfo> {
         use ureq::{http::header::ACCEPT, Agent};
 
         let pasteid = self.pasteid;
@@ -142,7 +141,39 @@ impl Paste<'_> {
             .call()?
             .body_mut()
             .read_json()?;
+        Ok(resp)
+    }
 
+    /// Get `CipherInfo` to decrypt asynchronously, with [`reqwest`].
+    ///
+    /// ## NOTE
+    ///
+    /// Because reqwest depends on tokio types, if you are using an async runtime
+    ///
+    /// other than tauri and tokio, try to spawn this inside tokio context.
+    ///
+    /// Also see [async_compat](https://docs.rs/async-compat/latest/async_compat/)
+    #[cfg(feature = "reqwest")]
+    pub async fn request_async(&self) -> Result<CipherInfo> {
+        use reqwest::{header::ACCEPT, ClientBuilder};
+
+        let pasteid = self.pasteid;
+        let key_base58 = self.key_base58;
+
+        let base = self.base_url;
+        let init_cookies = format!("{base}?{pasteid}#{key_base58}");
+        let cipher_info = format!("{base}?pasteid={pasteid}");
+
+        let client = ClientBuilder::new().gzip(true).build()?;
+        client.get(init_cookies).send().await?;
+
+        let resp = client
+            .get(cipher_info)
+            .header(ACCEPT, "application/json")
+            .send()
+            .await?
+            .json()
+            .await?;
         Ok(resp)
     }
 }

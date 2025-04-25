@@ -10,8 +10,12 @@ pub enum Error {
     #[error("url must be like https://paste.fitgirl-repacks.site/?{{pasteid}}#{{key_base58}}")]
     IllFormedURL,
 
+    #[cfg(feature = "ureq")]
     #[error("request error: {0}")]
     Ureq(#[from] ureq::Error),
+    #[cfg(feature = "reqwest")]
+    #[error("request error: {0}")]
+    Reqwest(#[from] reqwest::Error),
 
     #[error("base58 decode error: {0}")]
     Base58(#[from] bs58::decode::Error),
