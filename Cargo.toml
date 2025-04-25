@@ -7,7 +7,7 @@ authors = ["mokurin000 <mokurin000@gmail.com>"]
 license = "MIT"
 
 [features]
-default = ["ureq", "reqwest"]
+default = ["ureq"]
 ureq = ["dep:ureq"]
 reqwest = ["dep:reqwest"]
 
@@ -22,5 +22,17 @@ serde_json = "1.0.140"
 ring = "0.17.14"
 
 ureq = { version = "3.0.11", features = ["cookies", "json"], optional = true }
-reqwest = { version = "0.12.15", optional = true, default-features = false, features = ["cookies", "gzip", "json", "rustls-tls"] }
+reqwest = { version = "0.12.15", optional = true, default-features = false, features = [
+    "cookies",
+    "gzip",
+    "json",
+    "rustls-tls",
+] }
 typenum = "1.18.0"
+
+[dev-dependencies]
+tokio = { version = "1.44.2", features = ["rt", "macros"] }
+
+[[test]]
+name = "request_async"
+required-features = ["reqwest"]

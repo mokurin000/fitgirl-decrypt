@@ -56,6 +56,7 @@ impl Serialize for Cipher {
 /// use fitgirl_decrypt::base64::{prelude::BASE64_STANDARD, Engine};
 /// use fitgirl_decrypt::{Paste, Attachment};
 ///
+/// #[cfg(feature = "ureq")]
 /// for url in [
 ///     "https://paste.fitgirl-repacks.site/?e9a29aba6419df2e#EPGKu25RdaUZu45s4yrmpDLKVmFZq214VCos2t9M54a7",
 ///     "https://pastefg.hermietkreeft.site/?504bf00f08cb6c26#Cg1BP1oPRYGGffdNyrNUca9AUpstsHRz7McPnEaUUTLo",
