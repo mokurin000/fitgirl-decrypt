@@ -1,6 +1,7 @@
 use serde::Serialize;
 use thiserror::Error;
 
+/// Possible errors during requesting/decrypting/decoding/deserialization e.g.
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("key length not match! expected 32, got {0}")]
@@ -27,7 +28,7 @@ pub enum Error {
     #[error("aes-256-gcm decryption error")]
     AesGcm,
 
-    #[error("serialize error: {0}")]
+    #[error("deserialize error: {0}")]
     JSONSerialize(#[from] serde_json::Error),
 }
 

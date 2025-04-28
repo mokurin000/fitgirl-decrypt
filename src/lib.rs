@@ -20,6 +20,7 @@ pub struct Paste<'a> {
     base_url: &'a str,
 }
 
+/// Alias of Result with [`Error`] as E.
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl Paste<'_> {
@@ -94,7 +95,7 @@ impl Paste<'_> {
             kdf_iterations,
             compression_type,
             ..
-        } = &adata.0;
+        } = &adata.cipher;
 
         let master_key = &self.key;
         let ct = BASE64_STANDARD.decode(ct)?;
@@ -119,7 +120,7 @@ impl Paste<'_> {
         Ok(serde_json::from_slice(&data)?)
     }
 
-    /// Get `CipherInfo` to decrypt synchronously, with [`ureq`].
+    /// Get [`CipherInfo`] to decrypt synchronously, with [`ureq`].
     #[cfg(feature = "ureq")]
     pub fn request(&self) -> Result<CipherInfo> {
         use ureq::{http::header::ACCEPT, Agent};
@@ -144,7 +145,7 @@ impl Paste<'_> {
         Ok(resp)
     }
 
-    /// Get `CipherInfo` to decrypt asynchronously, with [`reqwest`].
+    /// Get [`CipherInfo`] to decrypt asynchronously, with [`reqwest`].
     ///
     /// ## NOTE
     ///
@@ -178,4 +179,5 @@ impl Paste<'_> {
     }
 }
 
+/// re-export of base64 for torrent decoding.
 pub use base64;
