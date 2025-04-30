@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", feature(doc_cfg))]
+
 use std::num::NonZero;
 
 use base64::{prelude::BASE64_STANDARD, Engine};
@@ -85,7 +87,7 @@ impl Paste<'_> {
         })
     }
 
-    /// Decrypt paste from [`CipherInfo`]. see [`request`] and [`request_async`].
+    /// Decrypt paste from [`CipherInfo`]. see [`request`](Paste::request) and [`request_async`](Paste::request_async).
     pub fn decrypt(&self, cipher: impl AsRef<CipherInfo>) -> Result<Attachment> {
         let CipherInfo { adata, ct } = cipher.as_ref();
 
@@ -121,6 +123,7 @@ impl Paste<'_> {
     }
 
     /// Get [`CipherInfo`] to decrypt synchronously, with [`ureq`].
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "ureq")))]
     #[cfg(feature = "ureq")]
     pub fn request(&self) -> Result<CipherInfo> {
         use ureq::{http::header::ACCEPT, Agent};
@@ -154,6 +157,7 @@ impl Paste<'_> {
     /// other than tauri and tokio, try to spawn this inside tokio context.
     ///
     /// Also see [async_compat](https://docs.rs/async-compat/latest/async_compat/)
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "reqwest")))]
     #[cfg(feature = "reqwest")]
     pub async fn request_async(&self) -> Result<CipherInfo> {
         use reqwest::{header::ACCEPT, ClientBuilder};

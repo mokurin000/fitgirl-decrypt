@@ -10,6 +10,10 @@ license = "MIT"
 default = ["ureq"]
 ureq = ["dep:ureq"]
 reqwest = ["dep:reqwest"]
+nightly = []
+
+[package.metadata.doc.rs]
+all-features = true
 
 [dependencies]
 aes-gcm = "0.10.3"
@@ -36,3 +40,6 @@ tokio = { version = "1.44.2", features = ["rt", "macros"] }
 [[test]]
 name = "request_async"
 required-features = ["reqwest"]
+
+[patch.crates-io]
+ureq = { git = "git+https://github.com/algesten/ureq.git", rev = "80eba80" }
