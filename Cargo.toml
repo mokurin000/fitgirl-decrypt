@@ -1,6 +1,6 @@
 [package]
 name = "fitgirl-decrypt"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 description = "decrypt torrents from fitgirl-repacks"
 authors = ["mokurin000 <mokurin000@gmail.com>"]
@@ -13,8 +13,9 @@ reqwest = ["dep:reqwest"]
 nyquest = ["dep:nyquest"]
 nightly = []
 
-[package.metadata.doc.rs]
+[package.metadata.docs.rs]
 all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 aes-gcm = "0.10.3"
