@@ -87,7 +87,7 @@ impl Paste<'_> {
         })
     }
 
-    /// Decrypt paste from [`CipherInfo`]. see [`request`](Paste::request) and [`request_async`](Paste::request_async).
+    /// Decrypt paste from [`CipherInfo`].
     pub fn decrypt(&self, cipher: impl AsRef<CipherInfo>) -> Result<Attachment> {
         let CipherInfo { adata, ct } = cipher.as_ref();
 
