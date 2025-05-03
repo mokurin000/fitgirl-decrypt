@@ -15,6 +15,8 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   release:
+    environment:
+      name: github-pages
     name: GitHub Pages
     runs-on: ubuntu-latest
     steps:
