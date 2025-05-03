@@ -15,6 +15,7 @@ mod error;
 pub use error::Error;
 
 /// [`Paste`] stores pasteid and key.
+#[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct Paste<'a> {
     key: Vec<u8>,
