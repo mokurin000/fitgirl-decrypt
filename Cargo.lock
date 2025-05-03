@@ -306,7 +306,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "fitgirl-decrypt"
-version = "0.3.4"
+version = "0.3.5"
 dependencies = [
  "aes-gcm",
  "base64",
