@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+#![doc = include_str!("../../README.md")]
 #![cfg_attr(feature = "nightly", feature(doc_cfg))]
 
 use std::num::NonZero;

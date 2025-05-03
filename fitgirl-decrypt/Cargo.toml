@@ -1,0 +1,44 @@
+[package]
+name = "fitgirl-decrypt"
+version = "0.3.5"
+edition = "2021"
+description = "decrypt torrents from fitgirl-repacks"
+authors = ["mokurin000 <mokurin000@gmail.com>"]
+license = "MIT"
+documentation = "https://mokurin000.github.io/fitgirl-decrypt/fitgirl_decrypt/index.html"
+
+[features]
+default = ["ureq"]
+ureq = ["dep:ureq"]
+reqwest = ["dep:reqwest"]
+nyquest = ["dep:nyquest"]
+nightly = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+aes-gcm = "0.10.3"
+base64 = "0.22.1"
+bs58 = "0.5.1"
+miniz_oxide = "0.8.8"
+thiserror = "2.0.12"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+ring = "0.17.14"
+
+ureq = { version = "3.0.11", features = ["cookies", "json"], optional = true }
+reqwest = { version = "0.12.15", optional = true, default-features = false, features = [
+    "cookies",
+    "gzip",
+    "json",
+    "rustls-tls",
+] }
+typenum = "1.18.0"
+nyquest = { version = "0.1.0", features = ["async", "json"], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.44.2", features = ["rt", "macros"] }
+nyquest-preset = { version = "0.1.0", features = ["async"] }
+rstest = "0.25.0"
