@@ -1,0 +1,36 @@
+name: Deploy Docs to GitHub Pages
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  release:
+    name: GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Build Documentation
+        run: cargo doc --no-deps --document-private-items --all-features
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: './target/doc'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
