@@ -17,6 +17,8 @@ struct Args {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+    nyquest_preset::register();
+
     let Args { url, output_dir } = argh::from_env();
 
     let paste = Paste::parse_url(&url)?;
