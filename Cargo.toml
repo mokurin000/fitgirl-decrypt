@@ -5,7 +5,7 @@ edition = "2021"
 description = "decrypt torrents from fitgirl-repacks"
 authors = ["mokurin000 <mokurin000@gmail.com>"]
 license = "MIT"
-documentation = ""
+documentation = "https://mokurin000.github.io/fitgirl-decrypt/fitgirl_decrypt/index.html"
 
 [features]
 default = ["ureq"]
