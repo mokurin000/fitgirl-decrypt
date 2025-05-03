@@ -1,6 +1,15 @@
 [workspace]
 resolver = "2"
-members = ["fitgirl-decrypt"]
+members = ["fitgirl-decrypt", "fitgirl-decryptor"]
+
+[workspace.dependencies]
+fitgirl-decrypt = { path = "./fitgirl-decrypt", default-features = false }
 
 [patch.crates-io]
 ureq = { git = "https://github.com/algesten/ureq.git", rev = "80eba804ef9f0149a39f39a129be45448b5a78d2" }
+
+[profile.release]
+lto = true
+strip = true
+codegen-units = 1
+panic = "abort"
