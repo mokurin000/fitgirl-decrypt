@@ -5,6 +5,7 @@ edition = "2021"
 description = "decrypt torrents from fitgirl-repacks"
 authors = ["mokurin000 <mokurin000@gmail.com>"]
 license = "MIT"
+documentation = ""
 
 [features]
 default = ["ureq"]
@@ -43,4 +44,4 @@ nyquest-preset = { version = "0.1.0", features = ["async"] }
 rstest = "0.25.0"
 
 [patch.crates-io]
-ureq = { git = "git+https://github.com/algesten/ureq.git", rev = "80eba80" }
+ureq = { git = "git+https://github.com/algesten/ureq.git", rev = "80eba804ef9f0149a39f39a129be45448b5a78d2" }
