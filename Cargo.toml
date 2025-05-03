@@ -10,6 +10,7 @@ license = "MIT"
 default = ["ureq"]
 ureq = ["dep:ureq"]
 reqwest = ["dep:reqwest"]
+nyquest = ["dep:nyquest"]
 nightly = []
 
 [package.metadata.doc.rs]
@@ -33,13 +34,12 @@ reqwest = { version = "0.12.15", optional = true, default-features = false, feat
     "rustls-tls",
 ] }
 typenum = "1.18.0"
+nyquest = { version = "0.1.0", features = ["async", "json"], optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.44.2", features = ["rt", "macros"] }
-
-[[test]]
-name = "request_async"
-required-features = ["reqwest"]
+nyquest-preset = { version = "0.1.0", features = ["async"] }
+rstest = "0.25.0"
 
 [patch.crates-io]
 ureq = { git = "git+https://github.com/algesten/ureq.git", rev = "80eba80" }

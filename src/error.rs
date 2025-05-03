@@ -18,6 +18,13 @@ pub enum Error {
     #[error("request error: {0}")]
     Reqwest(#[from] reqwest::Error),
 
+    #[cfg(feature = "nyquest")]
+    #[error("request error: {0}")]
+    Nyquest(#[from] nyquest::Error),
+    #[cfg(feature = "nyquest")]
+    #[error("build client error: {0}")]
+    NyquestBuildClient(#[from] nyquest::client::BuildClientError),
+
     #[error("base58 decode error: {0}")]
     Base58(#[from] bs58::decode::Error),
     #[error("base64 decode error: {0}")]

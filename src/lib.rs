@@ -181,6 +181,35 @@ impl Paste<'_> {
             .await?;
         Ok(resp)
     }
+
+    /// Get [`CipherInfo`] to decrypt asynchronously, with [`nyquest`].
+    ///
+    /// Nyquest can be much more lightweight than [`reqwest`], though it's experimental.
+    #[cfg_attr(feature = "nightly", doc(cfg(feature = "nyquest")))]
+    #[cfg(feature = "nyquest")]
+    pub async fn request_async_ny(&self) -> Result<CipherInfo> {
+        use nyquest::{r#async::Request, ClientBuilder};
+
+        let pasteid = self.pasteid;
+        let key_base58 = self.key_base58;
+
+        let base = self.base_url;
+        let init_cookies = format!("/?{pasteid}#{key_base58}");
+        let cipher_info = format!("/?pasteid={pasteid}");
+
+        let client = ClientBuilder::default()
+            .base_url(base)
+            .build_async()
+            .await?;
+        client.request(Request::get(init_cookies)).await?;
+
+        let resp = client
+            .request(Request::get(cipher_info).with_header("Accept", "application/json"))
+            .await?
+            .json()
+            .await?;
+        Ok(resp)
+    }
 }
 
 /// re-export of base64 for torrent decoding.
