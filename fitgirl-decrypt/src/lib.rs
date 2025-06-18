@@ -1,15 +1,11 @@
 #![doc = include_str!("../../README.md")]
 #![cfg_attr(feature = "nightly", feature(doc_cfg))]
 
-use std::num::NonZero;
-
-use base64::{prelude::BASE64_STANDARD, Engine};
-
 mod types;
 pub use types::{Attachment, Cipher, CipherInfo, CompressionType};
 
 mod crypto;
-use crypto::decrypt_aes_256_gcm;
+pub use crypto::decrypt_with_key;
 
 mod error;
 pub use error::Error;
@@ -91,37 +87,11 @@ impl Paste<'_> {
 
     /// Decrypt paste from [`CipherInfo`].
     pub fn decrypt(&self, cipher: impl AsRef<CipherInfo>) -> Result<Attachment> {
-        let CipherInfo { adata, ct } = cipher.as_ref();
+        decrypt_with_key(&self.master_key(), cipher.as_ref())
+    }
 
-        let Cipher {
-            cipher_iv,
-            kdf_salt,
-            kdf_iterations,
-            compression_type,
-            ..
-        } = &adata.cipher;
-
-        let master_key = &self.key;
-        let ct = BASE64_STANDARD.decode(ct)?;
-        let cipher_iv = BASE64_STANDARD.decode(cipher_iv)?;
-        let kdf_salt = BASE64_STANDARD.decode(kdf_salt)?;
-        let iterations = NonZero::new(*kdf_iterations).ok_or(Error::ZeroIterations)?;
-        let algorithm = ring::pbkdf2::PBKDF2_HMAC_SHA256;
-
-        let mut derived_key = [0u8; 32];
-        ring::pbkdf2::derive(
-            algorithm,
-            iterations,
-            &kdf_salt,
-            master_key,
-            &mut derived_key,
-        );
-
-        let adata_json = serde_json::to_string(&adata)?;
-
-        let data =
-            decrypt_aes_256_gcm(&ct, &derived_key, cipher_iv, &adata_json, compression_type)?;
-        Ok(serde_json::from_slice(&data)?)
+    pub fn master_key(&self) -> &Vec<u8> {
+        &self.key
     }
 
     /// Get [`CipherInfo`] to decrypt synchronously, with [`ureq`].
