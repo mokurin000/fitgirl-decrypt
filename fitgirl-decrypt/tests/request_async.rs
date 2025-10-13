@@ -16,11 +16,14 @@ async fn test_reqwest_decrypt() -> Result<(), Error> {
 #[cfg(feature = "nyquest")]
 #[tokio::test]
 async fn test_nyquest_decrypt() -> Result<(), Error> {
+    use nyquest::ClientBuilder;
+
     let _ = init_nyquest();
     let url = "https://paste.fitgirl-repacks.site/?e9a29aba6419df2e#EPGKu25RdaUZu45s4yrmpDLKVmFZq214VCos2t9M54a7";
     let paste = Paste::parse_url(url)?;
 
-    let cipher_info = paste.request_async_ny().await?;
+    let client = ClientBuilder::default().build_async().await?;
+    let cipher_info = paste.request_async_ny(client).await?;
 
     let masterkey = paste.master_key().to_owned();
     tokio::task::spawn_blocking(|| {

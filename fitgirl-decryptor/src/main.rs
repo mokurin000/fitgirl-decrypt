@@ -1,6 +1,7 @@
 use std::{error::Error, path::PathBuf};
 
 use fitgirl_decrypt::{Attachment, Paste, base64::prelude::*};
+use nyquest_preset::nyquest::ClientBuilder;
 
 #[derive(argh::FromArgs)]
 #[argh(
@@ -22,7 +23,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let Args { url, output_dir } = argh::from_env();
 
     let paste = Paste::parse_url(&url)?;
-    let cipher_info = pollster::block_on(paste.request_async_ny())?;
+    let cipher_info = pollster::block_on(async {
+        let client = ClientBuilder::default().build_async().await.unwrap();
+        paste.request_async_ny(client).await
+    })?;
     let Attachment {
         attachment,
         attachment_name,

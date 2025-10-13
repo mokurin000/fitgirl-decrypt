@@ -159,20 +159,16 @@ impl Paste<'_> {
     /// Nyquest can be much more lightweight than [`reqwest`], though it's experimental.
     #[cfg_attr(feature = "nightly", doc(cfg(feature = "nyquest")))]
     #[cfg(feature = "nyquest")]
-    pub async fn request_async_ny(&self) -> Result<CipherInfo> {
-        use nyquest::{r#async::Request, ClientBuilder};
+    pub async fn request_async_ny(&self, client: nyquest::AsyncClient) -> Result<CipherInfo> {
+        use nyquest::r#async::Request;
 
         let pasteid = self.pasteid;
         let key_base58 = self.key_base58;
 
         let base = self.base_url;
-        let init_cookies = format!("/?{pasteid}#{key_base58}");
-        let cipher_info = format!("/?pasteid={pasteid}");
+        let init_cookies = format!("{base}/?{pasteid}#{key_base58}");
+        let cipher_info = format!("{base}/?pasteid={pasteid}");
 
-        let client = ClientBuilder::default()
-            .base_url(base)
-            .build_async()
-            .await?;
         client.request(Request::get(init_cookies)).await?;
 
         let resp = client

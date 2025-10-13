@@ -32,7 +32,10 @@ pub fn get_cipher_info() -> fitgirl_decrypt::Result<fitgirl_decrypt::CipherInfo>
     #[cfg(feature = "reqwest")]
     return tokio_rt().block_on(paste.request_async());
     #[cfg(feature = "nyquest")]
-    return tokio_rt().block_on(paste.request_async_ny());
+    tokio_rt().block_on(async {
+        let client = ClientBuilder::default().build_async().await.unwrap();
+        paste.request_async_ny(client).await
+    });
 
     Err(fitgirl_decrypt::Error::IllFormedURL)
 }
